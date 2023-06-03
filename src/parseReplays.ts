@@ -10,11 +10,16 @@ const REPLAY_NUMB = "1";
 
 interface ReplayData {
   season: number;
+  // in the format March 15 2005
   date: string;
   home: string;
+  // In the format of 0 - 0 as a string ; not really used
   score: string;
   away: string;
+  // The actual text that says "Replay"
   replay_str: string;
+
+  // The URL of the replay, will be an empty string if no replay exists
   replay: string;
 }
 
@@ -48,6 +53,7 @@ async function parseReplays() {
     .pipe(csvParse({ columns: true }))
     .on("data", (data) => {
       replays.push({
+        // Parse as int as CSV's are strings
         season: parseInt(data.season),
         date: data.date,
         home: data.home,
@@ -71,12 +77,11 @@ async function parseReplays() {
 
         if (hasNoReplay) {
           console.log("No Replay");
-
           await handleNoReplay(formData);
-
           continue;
         }
 
+        // Create a unique file name for this replay, that we can easily tell what matchup it is for
         const fileName = `${replay.home}_${replay.away}_${i}`;
 
         // Get the replayId from the replay link, which is everything after "nagranie="
@@ -131,6 +136,12 @@ async function parseReplays() {
         formData.append("replayNumb", REPLAY_NUMB);
 
         // Send to our server
+        // Server will do the following:
+        // 1. Get both teams by name, throws an error if teams are not found
+        // 2. Using team ids, find the first game record occurrence of that home vs away matchup in that season that has a replay_numb of 1
+        // 3. Edit the Game record's numb_replays to to the replayNumb we pass in, in the case of no replay its set to 0
+        // 4. Get the id of the game, and rename our replay file we pass in to the gameId + replayNumb
+        // 5. Upload the replay file to our supabase bucket
         const replayRes = await fetch(`${BASE_LOCALHOST_URL}/parser/replay`, {
           method: "POST",
           body: formData,
