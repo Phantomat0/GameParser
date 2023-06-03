@@ -20,7 +20,7 @@ export const parseStringArrToIntArr = (arrOfStr: string[]) => {
   return arrOfStr.map((str) => parseInt(str));
 };
 
-export function getQueryParam(link: string, paramName: string) {
+export const getQueryParam = (link: string, paramName: string) => {
   var q = link.match(new RegExp("[?&]" + paramName + "=([^&#]*)"));
   return q && q[1];
-}
+};

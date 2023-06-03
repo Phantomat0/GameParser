@@ -6,6 +6,7 @@ interface EloCalculatorProps {
   team1MargVictory: number;
 }
 
+// Different Elo K Factor multiplier based on game type
 export type GameType = "SEASON" | "PLAYOFF" | "FINAL";
 
 export function getWinChance(elo1: number, elo2: number): [number, number] {
@@ -13,6 +14,14 @@ export function getWinChance(elo1: number, elo2: number): [number, number] {
   const elo2Chance = 1 / (1 + Math.pow(10, (elo1 - elo2) / 400));
   return [elo1Chance, elo2Chance];
 }
+
+// Elo influenced by the following
+// 1. Strength on own team
+// 2. Strength of opponent
+// 3. Match result (Win or loss)
+// 4. Margin of victory (negative in the case of a loss)
+// 5. Game type, regular season, playoffs, final
+// 6. Division
 
 export default class EloCalculator {
   private K_FACTOR = 32;

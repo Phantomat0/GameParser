@@ -8,6 +8,7 @@ export async function mapPlayerReport(
   teamPtsAgainst: number,
   roomId: number
 ) {
+  // Map the array of strings to an actual object of integer values
   const stats = mapStatsToObject(playerRow);
 
   const [name] = playerRow;
@@ -17,6 +18,7 @@ export async function mapPlayerReport(
 
   const playerId = await getPlayerId(playerNameTrimmed, teamId);
 
+  // We say anyone played 13 mins, even if they really didn't, impossible to tell
   const MIN_P = 13;
 
   const rec_fpts = getFantasyPoints(stats, RECEIVER_FPTS_SCORING);
@@ -48,9 +50,11 @@ export async function mapPlayerReport(
   return {
     player_id: playerId,
     is_verified: true,
+    // Every player in a game gets a unique integer ID, for our case this is just the index of the row they appear in the HTML table + 1
     room_id: roomId,
     team_id: teamId,
     name: playerNameTrimmed,
+    // Cant extract their IP or Auth
     ip: "",
     w,
     l,
@@ -60,10 +64,13 @@ export async function mapPlayerReport(
     ptsa: teamPtsAgainst,
     rec_fpts,
     qb_fpts,
+    // Decide if they were the QB or not, using stats
     poso: passAtt > 8 && passAtt > stats.rec_c ? "QB" : "WR",
+    // We cant track what defensive position they played so its always NA
     posd: "NA",
     elo_change: elo,
     ...stats,
+    // If they had a pass attempt, they had played QB the entire snap, only snap stat that is legit
     snp_qb: passAtt,
     snp_wr: 0,
     snp_dr: 0,
@@ -75,6 +82,9 @@ export async function mapPlayerReport(
   };
 }
 
+/**
+ * NFL passer rating formula, adjusted to weight thrown interceptions more since they are rarer in HFL than NFL
+ */
 function getPasserRating({
   cmp,
   att,
@@ -104,6 +114,10 @@ async function getPlayerId(
   name: string,
   playerTeamId: number
 ): Promise<string> {
+  // Dont memoize because the getPlayer because the request also:
+  // 1. Creates a PlayerSeasonStat record for that season and division if the player doesnt have one
+  // 2. Updates the players team if we pass in a different team than the one they are currently on
+
   // if (PLAYER_ID_MEMO[name]) return PLAYER_ID_MEMO[name];
 
   const res = await fetch(`${BASE_LOCALHOST_URL}/parser/getplayer`, {
@@ -141,7 +155,8 @@ export const getTeamAverageElo = (playerReports: PlayerReport[]) => {
 
   const { val, count } = playerReports.reduce(
     (acc, val) => {
-      // Dont count people who had no fantasy points
+      // Dont count people who had no fantasy points, since that means they probs played minimal minutes
+      // and didn't really impact the game
       if (val.rec_fpts === 0 && val.qb_fpts === 0) return acc;
       acc.val += val.elo_change;
       acc.count++;
@@ -167,7 +182,8 @@ function mapStatsToObject(playerRow: string[]) {
     parseStringArrToIntArr(stats);
 
   const passerRating = getPasserRating({ cmp, att, pyds, tdp, intt });
-  // Checks
+
+  // Checks and adjustments to stats as a result of human error when the stats were inputted
 
   if (recyd > 0 && rec === 0) {
     console.log(

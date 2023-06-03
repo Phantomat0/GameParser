@@ -62,7 +62,6 @@ async function getTeamId(teamName: string): Promise<number> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // 'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: JSON.stringify({
       name: teamName,
@@ -82,6 +81,7 @@ async function getTextContentArr(elems: ElementHandle[]) {
   )) as string[];
 }
 
+// The schedule shows the latest team names for the teams, but on the replay CSV it uses the team names from that current season, so we have to transform the latest team name to the team name used in that season
 const NEW_NAME_MAP = {
   "6": {
     "Anti Larva Area": "Baxton Bay Boomers",
@@ -100,6 +100,9 @@ const NEW_NAME_MAP = {
   "8": {},
 };
 
+/**
+ * Adjusts the names of teams since some teams had changed their names over the course of different seasons
+ */
 const getTeamName = ({
   division,
   season,
@@ -158,11 +161,6 @@ async function toGameObject(
       )
     );
   })) as [TableWithRowElements, TableWithRowElements];
-
-  //   if (homeTeamPlayers[0][0] === "0") {
-  //     skippedGames.push(`SKIPPED ${date} ${homeTeamName} VS ${awayTeamName}`);
-  //     return;
-  //   }
 
   const home = await processDataForTeam({
     ownScore: homeTeamScore,
@@ -281,13 +279,18 @@ async function uploadGame({
   const game = {
     season_id: SETTINGS.SEASON,
     division: SETTINGS.DIVISION,
+    // Each team plays once per day, based on the index matchup, we can tell which match day we are on
+    // i.e a league with 4 teams means every 2 games the day changes
+    // Game 5 would be (4 + (4 / 2)) / (4 / 2) = (4 + 2) / 2 = 6 / 2 = 3, Day 3
     day: Math.floor((index + SETTINGS.TEAMS / 2) / (SETTINGS.TEAMS / 2)),
     type: gameType,
     home_team_id: homeTeamId,
     away_team_id: awayTeamId,
     home_score: homeTeamScore,
     away_score: awayTeamScore,
+    // 13 minutes in seconds
     duration: 780,
+    // No OT by default
     is_ot: false,
     winning_team_id: winningTeamId,
     home_elo: homeElo.average,
@@ -298,11 +301,12 @@ async function uploadGame({
     away_yds: awayYards,
     scheduled_date: date,
     played_date: date,
+    // By defauly set that every game has one replay, we will change this later
     num_replays: 1,
     players,
   };
 
-  const res = await fetch("http://localhost:3000/api/haxball/uploadgame", {
+  const res = await fetch(`${BASE_LOCALHOST_URL}/haxball/uploadgame`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -312,7 +316,7 @@ async function uploadGame({
 
   const { id } = (await res.json()) as { id: string };
 
-  if (!id) throw Error("RUH ROH");
+  if (!id) throw Error("Error uploading game");
 
   return {
     gameId: id,
@@ -330,6 +334,7 @@ async function parseGames() {
 
   const page = (await browser.pages())[0];
 
+  // Loop in reverse order that we get the matchdays in chronological order, since they print in reverse
   for (var i = gamesList.length - 1; i > -1; i--) {
     const game = gamesList[i];
     await page.goto(game.link, {
