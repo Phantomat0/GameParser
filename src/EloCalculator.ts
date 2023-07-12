@@ -54,14 +54,14 @@ export default class EloCalculator {
     team1MargVictory,
   }: EloCalculatorProps): number {
     const GAME_TYPE_MULTIPLIERS: Record<typeof gameType, number> = {
-      SEASON: 0.5,
-      PLAYOFF: 0.8,
-      FINAL: 1.5,
+      SEASON: 0.3,
+      PLAYOFF: 0.6,
+      FINAL: 1.1,
     };
 
     const DIV_MULTIPLIERS: Record<typeof div, number> = {
-      1: 0.5,
-      2: 0.3,
+      1: 0.3,
+      2: 0.1,
     };
 
     const winningTeamElo = team1MargVictory > 0 ? team1Elo : team2Elo;
