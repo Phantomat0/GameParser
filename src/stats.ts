@@ -1,5 +1,6 @@
 import SETTINGS, { BASE_LOCALHOST_URL } from "./settings";
 import { limitNumberWithinRange, parseStringArrToIntArr, round } from "./utils";
+import fetch from "node-fetch";
 
 export async function mapPlayerReport(
   playerRow: string[],
@@ -24,8 +25,6 @@ export async function mapPlayerReport(
   const rec_fpts = getFantasyPoints(stats, RECEIVER_FPTS_SCORING);
   const qb_fpts = getFantasyPoints(stats, QB_FPTS_SCORING);
 
-  console.log({ rec_fpts, qb_fpts });
-
   const w = teamPtsFor > teamPtsAgainst ? 1 : 0;
   const l = w === 1 ? 0 : 1;
 
@@ -44,8 +43,6 @@ export async function mapPlayerReport(
   });
 
   const { elo } = (await res.json()) as { elo: number };
-
-  console.log(name, elo);
 
   return {
     player_id: playerId,
@@ -255,6 +252,7 @@ function mapStatsToObject(playerRow: string[]) {
     spec_rec_yd: 0,
     spec_rec_td: 0,
     spec_tak: 0,
+    pen: 0,
   };
 }
 
@@ -271,7 +269,7 @@ const RECEIVER_FPTS_SCORING: Partial<
 const QB_FPTS_SCORING: Partial<
   Record<keyof ReturnType<typeof mapStatsToObject>, number>
 > = {
-  pas_yd_c: 0.04,
+  pas_yd_c: 0.05,
   td_pas: 4,
   int_t: -3,
 };

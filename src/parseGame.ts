@@ -10,6 +10,7 @@ import {
   PlayerReport,
 } from "./stats";
 import { parseStringArrToIntArr } from "./utils";
+import fetch from "node-fetch";
 
 const TEAM_ID_MEMO = {};
 
@@ -97,7 +98,14 @@ const NEW_NAME_MAP = {
     "Rio Raptors": "Havana Hurricanes",
     "Tree House Gamers": "Riverside Groundhawks",
   },
-  "8": {},
+  "8": {
+    "Porto Corsa Asteroids": "Flip Gear",
+    "Tree House Gamers": "New Jersey Philly Specials",
+    "Rio Raptors": "Mexico City Aztecs",
+    "Chicago Cockatoos": "Bubble’s Ice Penguins",
+    "Red Berries": "Loona Orbits",
+    "Vauxhall Vanguard": "Incheon Butterflies",
+  },
 };
 
 /**
@@ -119,12 +127,71 @@ const getTeamName = ({
   return NEW_NAME_MAP[season.toString()][teamName] as string;
 };
 
+const getHomeAndAwayScoreForfeit = (forfeitType: GameLink["isForfeit"]) => {
+  const FORFEIT_WIN_SCORE = 22;
+  const FORFEIT_LOSE_SCORE = 0;
+
+  if (forfeitType == "none")
+    return {
+      homeScore: FORFEIT_LOSE_SCORE,
+      awayScore: FORFEIT_LOSE_SCORE,
+    };
+
+  if (forfeitType == "home")
+    return {
+      homeScore: FORFEIT_WIN_SCORE,
+      awayScore: FORFEIT_LOSE_SCORE,
+    };
+
+  return {
+    homeScore: FORFEIT_LOSE_SCORE,
+    awayScore: FORFEIT_WIN_SCORE,
+  };
+};
+
+async function processForfeitGame({
+  index,
+  date,
+  homeTeamName,
+  awayTeamName,
+  forfeitType,
+}: {
+  index: number;
+  date: string;
+  homeTeamName: string;
+  awayTeamName: string;
+  forfeitType: GameLink["isForfeit"];
+}) {
+  const homeTeamId = await getTeamId(homeTeamName);
+  const awayTeamId = await getTeamId(awayTeamName);
+
+  const { homeScore, awayScore } = getHomeAndAwayScoreForfeit(forfeitType);
+
+  if (forfeitType)
+    await uploadGame({
+      homeTeamId,
+      awayTeamId,
+      homeElo: { average: 0, net: 0 },
+      awayElo: { average: 0, net: 0 },
+      homeYards: 0,
+      awayYards: 0,
+      gameType: "SEASON",
+      date,
+      players: [],
+      index,
+      homeTeamScore: homeScore,
+      awayTeamScore: awayScore,
+      isForfeit: true,
+    });
+}
+
 async function toGameObject(
   page: Puppeteer.Page,
-  date: string,
-  index: number,
-  type: GameLink["type"]
+  game: GameLink,
+  index: number
 ) {
+  const { date, isForfeit, type } = game;
+
   const [homeTeamNameStr, awayTeamNameStr] = await getTextContentArr(
     await page.$$(".sp-team-name")
   );
@@ -148,6 +215,15 @@ async function toGameObject(
   console.log(
     `Processing: ${homeTeamName}: ${homeTeamScore} vs ${awayTeamName}: ${awayTeamScore}`
   );
+
+  if (isForfeit)
+    return await processForfeitGame({
+      index,
+      homeTeamName,
+      awayTeamName,
+      date,
+      forfeitType: isForfeit,
+    });
 
   // Three dimensional arrow of table rows
   const [homeTeamPlayers, awayTeamPlayers] = (await page.$$eval<
@@ -216,6 +292,7 @@ async function toGameObject(
     },
     homeYards: home.totalYards,
     awayYards: away.totalYards,
+    isForfeit: true,
   });
 }
 
@@ -231,7 +308,8 @@ function getWinningTeam({
   awayTeamId: number;
 }) {
   if (homeTeamScore > awayTeamScore) return homeTeamId;
-  return awayTeamId;
+  if (awayTeamScore > homeTeamScore) return awayTeamId;
+  return null;
 }
 
 async function uploadGame({
@@ -247,6 +325,7 @@ async function uploadGame({
   homeElo,
   awayElo,
   gameType,
+  isForfeit,
 }: {
   homeTeamScore: number;
   awayTeamScore: number;
@@ -266,6 +345,7 @@ async function uploadGame({
     average: number;
   };
   gameType: GameType;
+  isForfeit: boolean;
 }) {
   console.log({ homeElo, awayElo });
 
@@ -301,12 +381,13 @@ async function uploadGame({
     away_yds: awayYards,
     scheduled_date: date,
     played_date: date,
-    // By defauly set that every game has one replay, we will change this later
+    // By default set that every game has one replay, we will change this later when we are uploading replays
     num_replays: 1,
+    is_forfeit: isForfeit,
     players,
   };
 
-  const res = await fetch(`${BASE_LOCALHOST_URL}/haxball/uploadgame`, {
+  const res = await fetch(`${BASE_LOCALHOST_URL}/parser/uploadgame`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -341,7 +422,7 @@ async function parseGames() {
       waitUntil: "networkidle2",
     });
 
-    await toGameObject(page, game.date, gamesList.length - 1 - i, game.type);
+    await toGameObject(page, game, gamesList.length - 1 - i);
   }
 
   await skippedGames.forEach((el) => console.log(el));
