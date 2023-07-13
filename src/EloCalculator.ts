@@ -61,7 +61,7 @@ export default class EloCalculator {
 
     const DIV_MULTIPLIERS: Record<typeof div, number> = {
       1: 0.3,
-      2: 0.1,
+      2: 0,
     };
 
     const winningTeamElo = team1MargVictory > 0 ? team1Elo : team2Elo;
