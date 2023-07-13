@@ -94,7 +94,7 @@ async function parseReplays() {
 
         // Get request to download the replay
         const res = await fetch(
-          `https://thehax.pl/forum/powtorki.php?action=pobierz&nagranie=${replayId}`,
+          `https://replay.thehax.pl/${replayId}/download`,
           {
             method: "GET",
           }
