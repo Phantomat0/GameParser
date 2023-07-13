@@ -1,6 +1,6 @@
 const SETTINGS = {
-  SEASON: 9,
-  DIVISION: 1,
+  SEASON: 8,
+  DIVISION: 2,
   TEAMS: 6,
 } as const;
 

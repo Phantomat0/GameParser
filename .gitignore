@@ -1,2 +1,11 @@
 /node_modules
 /replays
+/dist
+/draft.csv
+managers.csv
+src/index.ts
+.gitignore
+src/settings.ts
+src/gameslist
+replays.csv
+dist/bundle.js
