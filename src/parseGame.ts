@@ -16,6 +16,11 @@ const TEAM_ID_MEMO = {};
 
 type TableWithRowElements = string[][];
 
+const adjustTeamPlayersIfNoPlayers = (players: TableWithRowElements) => {
+  if (players.length === 1) return [];
+  return players;
+};
+
 export const processDataForTeam = async (data: {
   ownScore: number;
   oppScore: number;
@@ -88,7 +93,7 @@ const NEW_NAME_MAP = {
     "Anti Larva Area": "Baxton Bay Boomers",
     "Red Berries": "Baby Otters",
     "Vauxhall Vanguard": "Caerdydd Rheolwyr",
-    "Rio Raptors": "Panama Beach",
+    "Rio Raptors": "Panama Beaches",
     "Chicago Cockatoos": "Augusta Mourning Doves",
   },
   "7": {
@@ -97,6 +102,7 @@ const NEW_NAME_MAP = {
     "Vauxhall Vanguard": "Vauxhall Vanguard",
     "Rio Raptors": "Havana Hurricanes",
     "Tree House Gamers": "Riverside Groundhawks",
+    "Porto Corsa Asteroids": "Flip Gear",
   },
   "8": {
     "Porto Corsa Asteroids": "Flip Gear",
@@ -125,6 +131,20 @@ const getTeamName = ({
   if (division === 1) return teamName;
 
   return NEW_NAME_MAP[season.toString()][teamName] as string;
+};
+
+var lastDay: number = 1;
+
+const getDay = (index: number, customDate?: number) => {
+  if (typeof customDate !== "undefined") return lastDay + customDate;
+
+  // Each team plays once per day, based on the index matchup, we can tell which match day we are on
+  // i.e a league with 4 teams means every 2 games the day changes
+  // Game 5 would be (4 + (4 / 2)) / (4 / 2) = (4 + 2) / 2 = 6 / 2 = 3, Day 3
+  const day = Math.floor((index + SETTINGS.TEAMS / 2) / (SETTINGS.TEAMS / 2));
+
+  lastDay = day;
+  return day;
 };
 
 const getHomeAndAwayScoreForfeit = (forfeitType: GameLink["isForfeit"]) => {
@@ -190,7 +210,7 @@ async function toGameObject(
   game: GameLink,
   index: number
 ) {
-  const { date, isForfeit, type } = game;
+  const { date, isForfeit, type, customDate } = game;
 
   const [homeTeamNameStr, awayTeamNameStr] = await getTextContentArr(
     await page.$$(".sp-team-name")
@@ -226,7 +246,7 @@ async function toGameObject(
     });
 
   // Three dimensional arrow of table rows
-  const [homeTeamPlayers, awayTeamPlayers] = (await page.$$eval<
+  const [homeTeamPlayersRaw, awayTeamPlayersRaw] = (await page.$$eval<
     string,
     any[],
     Puppeteer.EvaluateFunc<[HTMLTableSectionElement, HTMLTableSectionElement][]>
@@ -237,6 +257,12 @@ async function toGameObject(
       )
     );
   })) as [TableWithRowElements, TableWithRowElements];
+
+  const homeTeamPlayers = adjustTeamPlayersIfNoPlayers(homeTeamPlayersRaw);
+  const awayTeamPlayers = adjustTeamPlayersIfNoPlayers(awayTeamPlayersRaw);
+
+  // console.log(homeTeamPlayers, awayTeamPlayers);
+  // console.log(homeTeamPlayers.length);
 
   const home = await processDataForTeam({
     ownScore: homeTeamScore,
@@ -292,7 +318,8 @@ async function toGameObject(
     },
     homeYards: home.totalYards,
     awayYards: away.totalYards,
-    isForfeit: true,
+    isForfeit: false,
+    customDate,
   });
 }
 
@@ -326,6 +353,7 @@ async function uploadGame({
   awayElo,
   gameType,
   isForfeit,
+  customDate,
 }: {
   homeTeamScore: number;
   awayTeamScore: number;
@@ -346,6 +374,7 @@ async function uploadGame({
   };
   gameType: GameType;
   isForfeit: boolean;
+  customDate?: number;
 }) {
   console.log({ homeElo, awayElo });
 
@@ -356,13 +385,12 @@ async function uploadGame({
     awayTeamId,
   });
 
+  const day = getDay(index, customDate);
+
   const game = {
     season_id: SETTINGS.SEASON,
     division: SETTINGS.DIVISION,
-    // Each team plays once per day, based on the index matchup, we can tell which match day we are on
-    // i.e a league with 4 teams means every 2 games the day changes
-    // Game 5 would be (4 + (4 / 2)) / (4 / 2) = (4 + 2) / 2 = 6 / 2 = 3, Day 3
-    day: Math.floor((index + SETTINGS.TEAMS / 2) / (SETTINGS.TEAMS / 2)),
+    day,
     type: gameType,
     home_team_id: homeTeamId,
     away_team_id: awayTeamId,
