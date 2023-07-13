@@ -3,7 +3,7 @@ const path = require("path");
 module.exports = {
   target: "node",
   entry: {
-    server: "./src/parser.ts",
+    server: "./src/index.ts",
   },
   output: {
     path: path.resolve(__dirname, "dist"),
