@@ -19,8 +19,8 @@ export async function mapPlayerReport(
 
   const playerId = await getPlayerId(playerNameTrimmed, teamId);
 
-  // We say anyone played 13 mins, even if they really didn't, impossible to tell
-  const MIN_P = 13;
+  // We say anyone played 26 mins, even if they really didn't, impossible to tell
+  const MIN_P = 26;
 
   const rec_fpts = getFantasyPoints(stats, RECEIVER_FPTS_SCORING);
   const qb_fpts = getFantasyPoints(stats, QB_FPTS_SCORING);
@@ -154,13 +154,15 @@ export const getTeamAverageElo = (playerReports: PlayerReport[]) => {
     (acc, val) => {
       // Dont count people who had no fantasy points, since that means they probs played minimal minutes
       // and didn't really impact the game
-      if (val.rec_fpts === 0 && val.qb_fpts === 0) return acc;
+      // if (val.rec_fpts === 0 && val.qb_fpts === 0) return acc;
       acc.val += val.elo_change;
       acc.count++;
       return acc;
     },
     { val: 0, count: 0 } as { val: number; count: number }
   );
+
+  if (count === 0) return 1500;
 
   return Math.round(val / count);
 };
