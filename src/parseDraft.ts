@@ -30,7 +30,7 @@ async function parseDraft() {
       });
     })
     .on("end", async () => {
-      const res = await fetch(`${BASE_LOCALHOST_URL}/parser/draft`, {
+      const res = await fetch(`${BASE_LOCALHOST_URL}/parser/load/draft`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
