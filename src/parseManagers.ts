@@ -22,7 +22,7 @@ async function parseManagers() {
       });
     })
     .on("end", async () => {
-      const res = await fetch(`${BASE_LOCALHOST_URL}/parser/loadmanagers`, {
+      const res = await fetch(`${BASE_LOCALHOST_URL}/parser/load/managers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
