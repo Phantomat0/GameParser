@@ -52,16 +52,18 @@ async function parseReplays() {
   fs.createReadStream("replays.csv")
     .pipe(csvParse({ columns: true }))
     .on("data", (data) => {
-      replays.push({
-        // Parse as int as CSV's are strings
-        season: parseInt(data.season),
-        date: data.date,
-        home: data.home,
-        score: data.score,
-        away: data.away,
-        replay_str: data.replay_str,
-        replay: data.replay,
-      });
+      if (data.replay_two) {
+        replays.push({
+          // Parse as int as CSV's are strings
+          season: parseInt(data.season),
+          date: data.date,
+          home: data.home,
+          score: data.score,
+          away: data.away,
+          replay_str: data.replay_str,
+          replay: data.replay_two,
+        });
+      }
     })
     .on("end", async () => {
       for (let i = 0; i < replays.length; i++) {

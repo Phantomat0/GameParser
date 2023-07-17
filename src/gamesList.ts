@@ -20,143 +20,77 @@ export interface GameLink {
 
 const gamesList: GameLink[] = [
   {
-    date: "2019-12-16T02:00:00.000Z",
-    link: "http://hflexport.local/event/flip-gear-vs-new-jersey-sweaty-specials/",
+    date: "2019-08-22T01:00:00.000Z",
+    link: "http://hflexport.local/event/baby-otters-vs-baxton-bay-boomers/",
     type: "FINAL",
     customDate: 2,
   },
   {
-    date: "2019-12-13T02:00:00.000Z",
-    link: "http://hflexport.local/event/mexico-city-aztecs-vs-flip-gear/",
+    date: "2019-08-19T01:00:00.000Z",
+    link: "http://hflexport.local/event/panama-beach-vs-baby-otters/",
     type: "PLAYOFF",
     customDate: 1,
   },
   {
-    date: "2019-12-13T02:00:00.000Z",
-    link: "http://hflexport.local/event/new-jersey-philly-specials-vs-bubbles-ice-penguins/",
-    type: "PLAYOFF",
-    customDate: 1,
+    date: "2019-08-12T01:00:00.000Z",
+    link: "http://hflexport.local/event/1062/",
   },
   {
-    date: "2019-12-09T02:00:00.000Z",
-    link: "http://hflexport.local/event/1358/",
+    date: "2019-08-12T01:00:00.000Z",
+    link: "http://hflexport.local/event/1063/",
+    isForfeit: "away",
   },
   {
-    date: "2019-12-09T02:00:00.000Z",
-    link: "http://hflexport.local/event/1359/",
+    date: "2019-08-12T01:00:00.000Z",
+    link: "http://hflexport.local/event/1064/",
   },
   {
-    date: "2019-12-09T02:00:00.000Z",
-    link: "http://hflexport.local/event/1360/",
+    date: "2019-08-09T01:00:00.000Z",
+    link: "http://hflexport.local/event/1060/",
   },
   {
-    date: "2019-12-06T02:00:00.000Z",
-    link: "http://hflexport.local/event/1355/",
+    date: "2019-08-09T01:00:00.000Z",
+    link: "http://hflexport.local/event/1061/",
   },
   {
-    date: "2019-12-06T02:00:00.000Z",
-    link: "http://hflexport.local/event/1356/",
+    date: "2019-08-05T01:00:00.000Z",
+    link: "http://hflexport.local/event/1058/",
   },
   {
-    date: "2019-12-06T02:00:00.000Z",
-    link: "http://hflexport.local/event/1357/",
+    date: "2019-08-05T01:00:00.000Z",
+    link: "http://hflexport.local/event/1059/",
   },
   {
-    date: "2019-12-02T02:00:00.000Z",
-    link: "http://hflexport.local/event/1354/",
+    date: "2019-08-02T01:00:00.000Z",
+    link: "http://hflexport.local/event/1057/",
   },
   {
-    date: "2019-12-02T02:00:00.000Z",
-    link: "http://hflexport.local/event/1352/",
+    date: "2019-08-02T01:00:00.000Z",
+    link: "http://hflexport.local/event/1056/",
   },
   {
-    date: "2019-12-02T02:00:00.000Z",
-    link: "http://hflexport.local/event/1353/",
+    date: "2019-07-29T01:00:00.000Z",
+    link: "http://hflexport.local/event/1054/",
   },
   {
-    date: "2019-11-29T02:00:00.000Z",
-    link: "http://hflexport.local/event/1349/",
+    date: "2019-07-29T01:00:00.000Z",
+    link: "http://hflexport.local/event/1055/",
   },
   {
-    date: "2019-11-29T02:00:00.000Z",
-    link: "http://hflexport.local/event/1350/",
+    date: "2019-07-26T01:00:00.000Z",
+    link: "http://hflexport.local/event/1051/",
   },
   {
-    date: "2019-11-29T02:00:00.000Z",
-    link: "http://hflexport.local/event/1351/",
+    date: "2019-07-26T01:00:00.000Z",
+    link: "http://hflexport.local/event/1053/",
   },
   {
-    date: "2019-11-25T02:00:00.000Z",
-    link: "http://hflexport.local/event/1346/",
+    date: "2019-07-22T01:00:00.000Z",
+    link: "http://hflexport.local/event/1049/",
   },
   {
-    date: "2019-11-25T02:00:00.000Z",
-    link: "http://hflexport.local/event/1347/",
-  },
-  {
-    date: "2019-11-25T02:00:00.000Z",
-    link: "http://hflexport.local/event/1348/",
-  },
-  {
-    date: "2019-11-22T02:00:00.000Z",
-    link: "http://hflexport.local/event/1343/",
-  },
-  {
-    date: "2019-11-22T02:00:00.000Z",
-    link: "http://hflexport.local/event/1344/",
-  },
-  {
-    date: "2019-11-22T02:00:00.000Z",
-    link: "http://hflexport.local/event/1345/",
-  },
-  {
-    date: "2019-11-18T02:00:00.000Z",
-    link: "http://hflexport.local/event/1340/",
-  },
-  {
-    date: "2019-11-18T02:00:00.000Z",
-    link: "http://hflexport.local/event/1341/",
-  },
-  {
-    date: "2019-11-18T02:00:00.000Z",
-    link: "http://hflexport.local/event/1342/",
-  },
-  {
-    date: "2019-11-15T02:00:00.000Z",
-    link: "http://hflexport.local/event/1338/",
-    isForfeit: "home",
-  },
-  {
-    date: "2019-11-15T02:00:00.000Z",
-    link: "http://hflexport.local/event/1339/",
-  },
-  {
-    date: "2019-11-15T02:00:00.000Z",
-    link: "http://hflexport.local/event/1337/",
-  },
-  {
-    date: "2019-11-11T02:00:00.000Z",
-    link: "http://hflexport.local/event/1334/",
-  },
-  {
-    date: "2019-11-11T02:00:00.000Z",
-    link: "http://hflexport.local/event/1335/",
-  },
-  {
-    date: "2019-11-11T02:00:00.000Z",
-    link: "http://hflexport.local/event/1336/",
-  },
-  {
-    date: "2019-11-08T02:00:00.000Z",
-    link: "http://hflexport.local/event/1331/",
-  },
-  {
-    date: "2019-11-08T02:00:00.000Z",
-    link: "http://hflexport.local/event/1332/",
-  },
-  {
-    date: "2019-11-08T02:00:00.000Z",
-    link: "http://hflexport.local/event/1333/",
+    date: "2019-07-22T01:00:00.000Z",
+    link: "http://hflexport.local/event/1050/",
   },
 ];
 

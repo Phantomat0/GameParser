@@ -261,9 +261,6 @@ async function toGameObject(
   const homeTeamPlayers = adjustTeamPlayersIfNoPlayers(homeTeamPlayersRaw);
   const awayTeamPlayers = adjustTeamPlayersIfNoPlayers(awayTeamPlayersRaw);
 
-  // console.log(homeTeamPlayers, awayTeamPlayers);
-  // console.log(homeTeamPlayers.length);
-
   const home = await processDataForTeam({
     ownScore: homeTeamScore,
     oppScore: awayTeamScore,
@@ -397,7 +394,7 @@ async function uploadGame({
     home_score: homeTeamScore,
     away_score: awayTeamScore,
     // 13 minutes in seconds
-    duration: 780,
+    duration: 1560,
     // No OT by default
     is_ot: false,
     winning_team_id: winningTeamId,

@@ -54,28 +54,24 @@ export default class EloCalculator {
     team1MargVictory,
   }: EloCalculatorProps): number {
     const GAME_TYPE_MULTIPLIERS: Record<typeof gameType, number> = {
-      SEASON: 0.3,
-      PLAYOFF: 0.6,
-      FINAL: 1.1,
+      SEASON: 0,
+      PLAYOFF: 0.8,
+      FINAL: 1.5,
     };
 
     const DIV_MULTIPLIERS: Record<typeof div, number> = {
-      1: 0.3,
+      1: 0.8,
       2: 0,
     };
 
-    const winningTeamElo = team1MargVictory > 0 ? team1Elo : team2Elo;
-    const losingTeamElo = team1MargVictory > 0 ? team2Elo : team1Elo;
-
-    const corrAdjMultiplier =
-      2.2 / ((winningTeamElo - losingTeamElo) * 0.001 + 2.2);
-
-    const margVictoryMultiplier = Math.log(Math.abs(team1MargVictory) + 1);
+    const margVictoryMultiplier = Math.max(
+      Math.log(Math.abs(team1MargVictory) + 1) - 1,
+      0
+    );
 
     return (
       DIV_MULTIPLIERS[div] +
       GAME_TYPE_MULTIPLIERS[gameType] +
-      corrAdjMultiplier +
       margVictoryMultiplier
     );
   }
@@ -98,10 +94,19 @@ export default class EloCalculator {
   ) {
     const [winChance] = getWinChance(team1Elo, team2Elo);
 
+    const winningTeamElo = team1MargVictory > 0 ? team1Elo : team2Elo;
+    const losingTeamElo = team1MargVictory > 0 ? team2Elo : team1Elo;
+
+    const corrAdjMultiplier =
+      2.2 / ((winningTeamElo - losingTeamElo) * 0.001 + 2.2);
+
     const team1Result = this._getTeam1Result(team1MargVictory);
 
     const delta = Math.round(
-      this.K_FACTOR * kFactorMultiplier * (team1Result - winChance)
+      this.K_FACTOR *
+        corrAdjMultiplier *
+        kFactorMultiplier *
+        (team1Result - winChance)
     );
 
     return delta;

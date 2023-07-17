@@ -9,3 +9,7 @@ src/settings.ts
 src/gameslist
 replays.csv
 dist/bundle.js
+replays.csv
+dist/bundle.js
+src/gamesList.ts
+src/settings.ts
