@@ -13,3 +13,4 @@ replays.csv
 dist/bundle.js
 src/gamesList.ts
 src/settings.ts
+schedule.csv
